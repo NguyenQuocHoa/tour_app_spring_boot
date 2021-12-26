@@ -1,9 +1,11 @@
 package com.controllers;
 
 import com.models.Tour;
-import com.models.ResponseObject;
+import com.ultils.modelHelper.ResponseObject;
 import com.repositories.TourRepository;
 import com.services.TourService;
+import com.ultils.modelHelper.ModelResult;
+import com.ultils.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,26 +19,37 @@ import java.util.Optional;
 public class TourController {
     // DI = Dependency Injection
     @Autowired
-    private TourRepository repository;
+    private TourRepository tourRepository;
     @Autowired
-    private TourService service;
+    private TourService tourService;
+
+    @GetMapping("/get-list-all")
+    @ResponseBody
+    ResponseEntity<ResponseObject> getListAllTours() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Query list all tour success", tourRepository.findAll(), tourRepository.count())
+        );
+    }
 
     @PostMapping("/get-list")
     @ResponseBody
     ResponseEntity<ResponseObject> getListTours(@RequestParam("pageIndex") int pageIndex,
-                                               @RequestParam("pageSize") int pageSize,
-                                               @RequestParam("sortColumn") String sortColumn,
-                                               @RequestParam("sortOrder") String sortOrder) {
-        List<Tour> listTour = service.getListTours(pageIndex, pageSize, sortColumn, sortOrder);
+                                                @RequestParam("pageSize") int pageSize,
+                                                @RequestParam("sortColumn") String sortColumn,
+                                                @RequestParam("sortOrder") String sortOrder,
+                                                @RequestBody List<SearchCriteria> searchCriteriaList) {
+        ModelResult<Tour> tourResult = tourService.getListTourWithSearch(pageIndex, pageSize, sortColumn, sortOrder, searchCriteriaList);
+        List<Tour> listTour = tourResult.getListResult();
+        long count = tourResult.getCount();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Query list tour success",  listTour)
+                new ResponseObject("ok", "Query list tour success", listTour, pageIndex, pageSize, count)
         );
     }
 
     @GetMapping("/get-by-id/{id}")
     @ResponseBody
     ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
-        Optional<Tour> fundTour = repository.findById(id);
+        Optional<Tour> fundTour = tourRepository.findById(id);
         if (fundTour.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Query tour success", fundTour)
@@ -52,14 +65,14 @@ public class TourController {
     @PostMapping("/insert")
     @ResponseBody
     ResponseEntity<ResponseObject> insertTour(@RequestBody Tour newTour) {
-        List<Tour> foundTours = repository.findByCode(newTour.getCode().trim());
+        List<Tour> foundTours = tourRepository.findByCode(newTour.getCode().trim());
         if (foundTours.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("failed", "Tour code already exist", "")
             );
         }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert tour success", repository.save(newTour))
+                new ResponseObject("ok", "Insert tour success", tourRepository.save(newTour))
         );
     }
 
@@ -67,16 +80,16 @@ public class TourController {
     @PutMapping("/update/{id}")
     @ResponseBody
     ResponseEntity<ResponseObject> updateTour(@RequestBody Tour newTour, @PathVariable Long id) {
-        Tour foundTour = repository.findById(id).map(tour -> {
+        Tour foundTour = tourRepository.findById(id).map(tour -> {
             tour.setCode(newTour.getCode());
             tour.setPriceAdult(newTour.getPriceAdult());
             tour.setPriceChild(newTour.getPriceChild());
             tour.setImage(newTour.getImage());
             tour.setNote(newTour.getNote());
-            return repository.save(tour);
+            return tourRepository.save(tour);
         }).orElseGet(() -> {
             newTour.setId(id);
-            return repository.save(newTour);
+            return tourRepository.save(newTour);
         });
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                 new ResponseObject("ok", "Upsert tour success", foundTour)
@@ -87,9 +100,9 @@ public class TourController {
     @DeleteMapping("/delete/{id}")
     @ResponseBody
     ResponseEntity<ResponseObject> deleteTour(@PathVariable Long id) {
-        boolean isExist = repository.existsById(id);
+        boolean isExist = tourRepository.existsById(id);
         if (isExist) {
-            repository.deleteById(id);
+            tourRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("ok", "Delete tour success", id)
             );

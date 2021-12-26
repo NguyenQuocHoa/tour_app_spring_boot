@@ -1,26 +1,29 @@
 package com.models;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
 @Entity
-@Table(name="tour")
-public class Tour {
+@Table(name = "tour")
+public class Tour implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String code;
-    private Double priceAdult;
-    private Double priceChild;
+    private BigDecimal priceAdult;
+    private BigDecimal priceChild;
     private String image;
     private String note;
     private long creator;
     private Date created;
 
-    public Tour() {}
+    public Tour() {
+    }
 
-    public Tour(Long id, String code, Double priceAdult, Double priceChild, String image, String note) {
+    public Tour(Long id, String code, BigDecimal priceAdult, BigDecimal priceChild, String image, String note) {
         this.id = id;
         this.code = code;
         this.priceAdult = priceAdult;
@@ -43,7 +46,6 @@ public class Tour {
                 '}';
     }
 
-
     public long getId() {
         return id;
     }
@@ -60,19 +62,19 @@ public class Tour {
         this.code = code;
     }
 
-    public Double getPriceAdult() {
+    public BigDecimal getPriceAdult() {
         return priceAdult;
     }
 
-    public void setPriceAdult(Double priceAdult) {
+    public void setPriceAdult(BigDecimal priceAdult) {
         this.priceAdult = priceAdult;
     }
 
-    public Double getPriceChild() {
+    public BigDecimal getPriceChild() {
         return priceChild;
     }
 
-    public void setPriceChild(Double priceChild) {
+    public void setPriceChild(BigDecimal priceChild) {
         this.priceChild = priceChild;
     }
 
@@ -91,7 +93,6 @@ public class Tour {
     public void setNote(String note) {
         this.note = note;
     }
-
 
     public long getCreator() {
         return creator;

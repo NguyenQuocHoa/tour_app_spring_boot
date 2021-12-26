@@ -2,38 +2,21 @@ package com.services;
 
 import com.models.Tour;
 import com.repositories.TourRepository;
+import com.ultils.modelHelper.ModelResult;
+import com.ultils.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Service
-public class TourService
-{
+public class TourService {
     @Autowired
-    TourRepository repository;
+    TourRepository tourRepository;
 
-    public List<Tour> getListTours(int pageIndex, int pageSize, String sortColumn, String sortOrder)
-    {
-        Pageable paging;
-        if (Objects.equals(sortOrder, "0")) {
-            paging = PageRequest.of(pageIndex - 1, pageSize, Sort.by(sortColumn).ascending());
-        } else {
-            paging = PageRequest.of(pageIndex - 1, pageSize, Sort.by(sortColumn).descending());
-        }
-
-        Page<Tour> pagedResult = repository.findAll(paging);
-
-        if(pagedResult.hasContent()) {
-            return pagedResult.getContent();
-        } else {
-            return new ArrayList<>();
-        }
+    public ModelResult<Tour> getListTourWithSearch(int pageIndex, int pageSize, String sortColumn, String sortOrder,
+                                                   List<SearchCriteria> searchCriteriaList) {
+        ModelService<Tour> modelService = new ModelService<>(tourRepository);
+        return modelService.getListWithSearch(pageIndex, pageSize, sortColumn, sortOrder, searchCriteriaList);
     }
 }

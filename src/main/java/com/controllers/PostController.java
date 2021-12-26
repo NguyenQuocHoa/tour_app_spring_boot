@@ -1,9 +1,11 @@
 package com.controllers;
 
 import com.models.Post;
-import com.models.ResponseObject;
-import com.repositories.PostRepository;
 import com.services.PostService;
+import com.ultils.modelHelper.ModelResult;
+import com.ultils.modelHelper.ResponseObject;
+import com.repositories.PostRepository;
+import com.ultils.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,26 +19,37 @@ import java.util.Optional;
 public class PostController {
     // DI = Dependency Injection
     @Autowired
-    private PostRepository repository;
+    private PostRepository postRepository;
     @Autowired
-    private PostService service;
+    private PostService postService;
+
+    @GetMapping("/get-list-all")
+    @ResponseBody
+    ResponseEntity<ResponseObject> getListAllTours() {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObject("ok", "Query list all post success", postRepository.findAll(), postRepository.count())
+        );
+    }
 
     @PostMapping("/get-list")
     @ResponseBody
     ResponseEntity<ResponseObject> getListPosts(@RequestParam("pageIndex") int pageIndex,
-                                               @RequestParam("pageSize") int pageSize,
-                                               @RequestParam("sortColumn") String sortColumn,
-                                               @RequestParam("sortOrder") String sortOrder) {
-        List<Post> listPost = service.getListPosts(pageIndex, pageSize, sortColumn, sortOrder);
+                                                @RequestParam("pageSize") int pageSize,
+                                                @RequestParam("sortColumn") String sortColumn,
+                                                @RequestParam("sortOrder") String sortOrder,
+                                                @RequestBody List<SearchCriteria> searchCriteriaList) {
+        ModelResult<Post> postResult = postService.getListPostWithSearch(pageIndex, pageSize, sortColumn, sortOrder, searchCriteriaList);
+        List<Post> listPost = postResult.getListResult();
+        long count = postResult.getCount();
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Query list tour success",  listPost)
+                new ResponseObject("ok", "Query list post success", listPost, pageIndex, pageSize, count)
         );
     }
 
     @GetMapping("/get-by-id/{id}")
     @ResponseBody
     ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
-        Optional<Post> fundPost = repository.findById(id);
+        Optional<Post> fundPost = postRepository.findById(id);
         if (fundPost.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObject("ok", "Query post success", fundPost)
@@ -52,14 +65,14 @@ public class PostController {
     @PostMapping("/insert")
     @ResponseBody
     ResponseEntity<ResponseObject> insertPost(@RequestBody Post newPost) {
-        List<Post> foundPosts = repository.findByCode(newPost.getCode().trim());
+        List<Post> foundPosts = postRepository.findByCode(newPost.getCode().trim());
         if (foundPosts.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("failed", "Post code already exist", "")
             );
         }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert post success", repository.save(newPost))
+                new ResponseObject("ok", "Insert post success", postRepository.save(newPost))
         );
     }
 
@@ -67,14 +80,14 @@ public class PostController {
     @PutMapping("/update/{id}")
     @ResponseBody
     ResponseEntity<ResponseObject> updatePost(@RequestBody Post newPost, @PathVariable Long id) {
-        Post foundPost = repository.findById(id).map(post -> {
+        Post foundPost = postRepository.findById(id).map(post -> {
             post.setCode(newPost.getCode());
             post.setNote(newPost.getNote());
             post.setContent(newPost.getContent());
-            return repository.save(post);
+            return postRepository.save(post);
         }).orElseGet(() -> {
             newPost.setId(id);
-            return repository.save(newPost);
+            return postRepository.save(newPost);
         });
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                 new ResponseObject("ok", "Upsert post success", foundPost)
@@ -85,9 +98,9 @@ public class PostController {
     @DeleteMapping("/delete/{id}")
     @ResponseBody
     ResponseEntity<ResponseObject> deletePost(@PathVariable Long id) {
-        boolean isExist = repository.existsById(id);
+        boolean isExist = postRepository.existsById(id);
         if (isExist) {
-            repository.deleteById(id);
+            postRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
                     new ResponseObject("ok", "Delete post success", id)
             );
