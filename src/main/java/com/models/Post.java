@@ -2,24 +2,36 @@ package com.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
-@Table(name="post")
-public class Post  implements Serializable {
+@Table(name = "post")
+public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     private String code;
     private String note;
     private String content;
+    @OneToMany(mappedBy = "post")
+    private Set<Comment> comments;
 
-    public Post(){}
+    public Post() {
+    }
 
     public Post(long id, String code, String note, String content) {
         this.id = id;
         this.code = code;
         this.note = note;
         this.content = content;
+    }
+
+    public Post(long id, String code, String note, String content, Set<Comment> comments) {
+        this.id = id;
+        this.code = code;
+        this.note = note;
+        this.content = content;
+        this.comments = comments;
     }
 
     @Override
@@ -29,6 +41,7 @@ public class Post  implements Serializable {
                 ", code='" + code + '\'' +
                 ", note='" + note + '\'' +
                 ", content='" + content + '\'' +
+                ", comments=" + comments +
                 '}';
     }
 
