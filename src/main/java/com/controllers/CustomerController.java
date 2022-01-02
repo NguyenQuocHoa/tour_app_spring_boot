@@ -1,10 +1,12 @@
 package com.controllers;
 
+import com.models.Comment;
 import com.models.Customer;
 import com.repositories.CustomerRepository;
 import com.services.CustomerService;
 import com.ultils.modelHelper.ModelResult;
 import com.ultils.modelHelper.ResponseObject;
+import com.ultils.modelHelper.ResponseObjectBase;
 import com.ultils.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,38 +50,61 @@ public class CustomerController {
 
     @GetMapping("/get-by-id/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> findById(@PathVariable Long id) {
         Optional<Customer> fundCustomer = customerRepository.findById(id);
         if (fundCustomer.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "Query customer success", fundCustomer)
+                    new ResponseObjectBase("ok", "Query customer success", fundCustomer)
             );
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject("false", "Can't find customer with id " + id, "")
+                    new ResponseObjectBase("failed", "Can't find customer with id " + id, "")
             );
         }
+    }
+
+    @GetMapping("/get-comment-by-customer")
+    @ResponseBody
+    ResponseEntity<ResponseObjectBase> findCommentByCustomer(@RequestParam Long customerId) {
+        Optional<Customer> fundCustomer = customerRepository.findById(customerId);
+        return fundCustomer.map(customer -> ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObjectBase("ok", "Query list comment by customer success", customer.getComments())
+        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObjectBase("failed", "Can't find comment bu customer id " + customerId, "")
+        ));
+    }
+
+    @GetMapping("/get-comment-text-by-customer")
+    @ResponseBody
+    ResponseEntity<ResponseObjectBase> findCommentTextByCustomer(@RequestParam Long customerId) {
+        Optional<Customer> fundCustomer = customerRepository.findById(customerId);
+        return fundCustomer.map(customer -> ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObjectBase("ok", "Query list comment text by customer success",
+                        customer.getComments().stream().filter((Comment comment) -> comment.getAction().contentEquals("text")))
+        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObjectBase("failed", "Can't find comments by customer id " + customerId, "")
+        ));
     }
 
     // insert new Customer with POST method
     @PostMapping("/insert")
     @ResponseBody
-    ResponseEntity<ResponseObject> insertCustomer(@RequestBody Customer newCustomer) {
+    ResponseEntity<ResponseObjectBase> insertCustomer(@RequestBody Customer newCustomer) {
         List<Customer> foundCustomers = customerRepository.findByCode(newCustomer.getCode().trim());
         if (foundCustomers.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("failed", "Customer code already exist", "")
+                    new ResponseObjectBase("failed", "Customer code already exist", "")
             );
         }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert customer success", customerRepository.save(newCustomer))
+                new ResponseObjectBase("ok", "Insert customer success", customerRepository.save(newCustomer))
         );
     }
 
     // update a Customer => Method PUT
     @PutMapping("/update/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> updateCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> updateCustomer(@RequestBody Customer newCustomer, @PathVariable Long id) {
         Customer foundCustomer = customerRepository.findById(id).map(customer -> {
             customer.setCode(newCustomer.getCode());
             customer.setName(newCustomer.getName());
@@ -95,23 +120,23 @@ public class CustomerController {
             return customerRepository.save(newCustomer);
         });
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("ok", "Upsert customer success", foundCustomer)
+                new ResponseObjectBase("ok", "Upsert customer success", foundCustomer)
         );
     }
 
     // Delete a Customer => Method DELETE
     @DeleteMapping("/delete/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> deleteCustomer(@PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> deleteCustomer(@PathVariable Long id) {
         boolean isExist = customerRepository.existsById(id);
         if (isExist) {
             customerRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("ok", "Delete customer success", id)
+                    new ResponseObjectBase("ok", "Delete customer success", id)
             );
         }
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("failed", "Can't find customer " + id, "")
+                new ResponseObjectBase("failed", "Can't find customer " + id, "")
         );
     }
 }

@@ -1,10 +1,12 @@
 package com.controllers;
 
+import com.models.Comment;
 import com.models.Post;
 import com.services.PostService;
 import com.ultils.modelHelper.ModelResult;
 import com.ultils.modelHelper.ResponseObject;
 import com.repositories.PostRepository;
+import com.ultils.modelHelper.ResponseObjectBase;
 import com.ultils.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,38 +50,61 @@ public class PostController {
 
     @GetMapping("/get-by-id/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> findById(@PathVariable Long id) {
         Optional<Post> fundPost = postRepository.findById(id);
         if (fundPost.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "Query post success", fundPost)
+                    new ResponseObjectBase("ok", "Query post success", fundPost)
             );
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject("false", "Can't find post with id " + id, "")
+                    new ResponseObjectBase("failed", "Can't find post with id " + id, "")
             );
         }
+    }
+
+    @GetMapping("/get-comment-by-post")
+    @ResponseBody
+    ResponseEntity<ResponseObjectBase> findCommentByPost(@RequestParam Long postId) {
+        Optional<Post> fundPost = postRepository.findById(postId);
+        return fundPost.map(post -> ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObjectBase("ok", "Query list comment by post success", post.getComments())
+        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObjectBase("failed", "Can't find comments by post id " + fundPost, "")
+        ));
+    }
+
+    @GetMapping("/get-comment-text-by-post")
+    @ResponseBody
+    ResponseEntity<ResponseObjectBase> findCommentTextByPost(@RequestParam Long postId) {
+        Optional<Post> fundPost = postRepository.findById(postId);
+        return fundPost.map(post -> ResponseEntity.status(HttpStatus.OK).body(
+                new ResponseObjectBase("ok", "Query list comment text by post success",
+                        post.getComments().stream().filter((Comment comment) -> comment.getAction().contentEquals("text")))
+        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                new ResponseObjectBase("failed", "Can't find comments by post id " + fundPost, "")
+        ));
     }
 
     // insert new Post with POST method
     @PostMapping("/insert")
     @ResponseBody
-    ResponseEntity<ResponseObject> insertPost(@RequestBody Post newPost) {
+    ResponseEntity<ResponseObjectBase> insertPost(@RequestBody Post newPost) {
         List<Post> foundPosts = postRepository.findByCode(newPost.getCode().trim());
         if (foundPosts.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("failed", "Post code already exist", "")
+                    new ResponseObjectBase("failed", "Post code already exist", "")
             );
         }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert post success", postRepository.save(newPost))
+                new ResponseObjectBase("ok", "Insert post success", postRepository.save(newPost))
         );
     }
 
     // update a Post => Method PUT
     @PutMapping("/update/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> updatePost(@RequestBody Post newPost, @PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> updatePost(@RequestBody Post newPost, @PathVariable Long id) {
         Post foundPost = postRepository.findById(id).map(post -> {
             post.setCode(newPost.getCode());
             post.setNote(newPost.getNote());
@@ -90,23 +115,23 @@ public class PostController {
             return postRepository.save(newPost);
         });
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("ok", "Upsert post success", foundPost)
+                new ResponseObjectBase("ok", "Upsert post success", foundPost)
         );
     }
 
     // Delete a Post => Method DELETE
     @DeleteMapping("/delete/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> deletePost(@PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> deletePost(@PathVariable Long id) {
         boolean isExist = postRepository.existsById(id);
         if (isExist) {
             postRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("ok", "Delete post success", id)
+                    new ResponseObjectBase("ok", "Delete post success", id)
             );
         }
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("failed", "Can't find post " + id, "")
+                new ResponseObjectBase("failed", "Can't find post " + id, "")
         );
     }
 }
