@@ -1,5 +1,7 @@
 package com.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Set;
@@ -14,6 +16,7 @@ public class Post implements Serializable {
     private String note;
     private String content;
     @OneToMany(mappedBy = "post")
+    @JsonIgnore
     private Set<Comment> comments;
 
     public Post() {
@@ -26,14 +29,6 @@ public class Post implements Serializable {
         this.content = content;
     }
 
-    public Post(long id, String code, String note, String content, Set<Comment> comments) {
-        this.id = id;
-        this.code = code;
-        this.note = note;
-        this.content = content;
-        this.comments = comments;
-    }
-
     @Override
     public String toString() {
         return "Post{" +
@@ -41,7 +36,6 @@ public class Post implements Serializable {
                 ", code='" + code + '\'' +
                 ", note='" + note + '\'' +
                 ", content='" + content + '\'' +
-                ", comments=" + comments +
                 '}';
     }
 
@@ -75,5 +69,13 @@ public class Post implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
     }
 }

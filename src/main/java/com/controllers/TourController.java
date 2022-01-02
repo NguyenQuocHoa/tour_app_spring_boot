@@ -5,6 +5,7 @@ import com.ultils.modelHelper.ResponseObject;
 import com.repositories.TourRepository;
 import com.services.TourService;
 import com.ultils.modelHelper.ModelResult;
+import com.ultils.modelHelper.ResponseObjectBase;
 import com.ultils.specification.SearchCriteria;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -48,15 +49,15 @@ public class TourController {
 
     @GetMapping("/get-by-id/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> findById(@PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> findById(@PathVariable Long id) {
         Optional<Tour> fundTour = tourRepository.findById(id);
         if (fundTour.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(
-                    new ResponseObject("ok", "Query tour success", fundTour)
+                    new ResponseObjectBase("ok", "Query tour success", fundTour)
             );
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    new ResponseObject("false", "Can't find tour with id " + id, "")
+                    new ResponseObjectBase("failed", "Can't find tour with id " + id, "")
             );
         }
     }
@@ -64,22 +65,22 @@ public class TourController {
     // insert new Tour with POST method
     @PostMapping("/insert")
     @ResponseBody
-    ResponseEntity<ResponseObject> insertTour(@RequestBody Tour newTour) {
+    ResponseEntity<ResponseObjectBase> insertTour(@RequestBody Tour newTour) {
         List<Tour> foundTours = tourRepository.findByCode(newTour.getCode().trim());
         if (foundTours.size() > 0) {
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("failed", "Tour code already exist", "")
+                    new ResponseObjectBase("failed", "Tour code already exist", "")
             );
         }
         return ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObject("ok", "Insert tour success", tourRepository.save(newTour))
+                new ResponseObjectBase("ok", "Insert tour success", tourRepository.save(newTour))
         );
     }
 
     // update a Tour => Method PUT
     @PutMapping("/update/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> updateTour(@RequestBody Tour newTour, @PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> updateTour(@RequestBody Tour newTour, @PathVariable Long id) {
         Tour foundTour = tourRepository.findById(id).map(tour -> {
             tour.setCode(newTour.getCode());
             tour.setPriceAdult(newTour.getPriceAdult());
@@ -92,23 +93,23 @@ public class TourController {
             return tourRepository.save(newTour);
         });
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("ok", "Upsert tour success", foundTour)
+                new ResponseObjectBase("ok", "Upsert tour success", foundTour)
         );
     }
 
     // Delete a Tour => Method DELETE
     @DeleteMapping("/delete/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObject> deleteTour(@PathVariable Long id) {
+    ResponseEntity<ResponseObjectBase> deleteTour(@PathVariable Long id) {
         boolean isExist = tourRepository.existsById(id);
         if (isExist) {
             tourRepository.deleteById(id);
             return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObject("ok", "Delete tour success", id)
+                    new ResponseObjectBase("ok", "Delete tour success", id)
             );
         }
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                new ResponseObject("failed", "Can't find tour " + id, "")
+                new ResponseObjectBase("failed", "Can't find tour " + id, "")
         );
     }
 

@@ -1,5 +1,7 @@
 package com.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
@@ -8,11 +10,10 @@ import java.util.Set;
 @Entity
 @Table(name = "customer")
 public class Customer implements Serializable {
-
-    private String code;
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
+    private String code;
     private String name;
     private String phone;
     private String email;
@@ -22,12 +23,17 @@ public class Customer implements Serializable {
     private String note;
 
     @OneToMany(mappedBy = "customer")
+    @JsonIgnore
     private Set<Comment> comments;
 
     public Customer() {
     }
 
-    public Customer(String code, String name, String phone, String email, String address, Date dob, String password, String note, Set<Comment> comments) {
+    public Customer(Long id) {
+        this.id = id;
+    }
+
+    public Customer(String code, String name, String phone, String email, String address, Date dob, String password, String note) {
         this.code = code;
         this.name = name;
         this.phone = phone;
@@ -36,7 +42,6 @@ public class Customer implements Serializable {
         this.dob = dob;
         this.password = password;
         this.note = note;
-        this.comments = comments;
     }
 
     public long getId() {
