@@ -20,6 +20,7 @@ public class Customer implements Serializable {
     private String address;
     private Date dob;
     private String password;
+    @Column(length = 1000)
     private String note;
 
     @OneToMany(mappedBy = "customer")

@@ -1,6 +1,5 @@
 package com.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
@@ -28,6 +27,7 @@ public class Comment implements Serializable {
 
     @Column(length = 1000)
     private String action;
+    @Column(length = 10000)
     private String text;
 
     public Comment() {

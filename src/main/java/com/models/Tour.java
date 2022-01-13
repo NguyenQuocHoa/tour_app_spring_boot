@@ -1,24 +1,32 @@
 package com.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "tour")
 public class Tour implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    private Long id;
     private String code;
     private BigDecimal priceAdult;
     private BigDecimal priceChild;
     private String image;
+    @Column(length = 1000)
     private String note;
-    private long creator;
+    private Long creator;
     private Date created;
+
+    @OneToMany(mappedBy = "tour")
+    @JsonIgnore
+    private Set<OrderDetail> orderDetails;
 
     public Tour() {
     }
@@ -108,6 +116,14 @@ public class Tour implements Serializable {
 
     public void setCreated(Date created) {
         this.created = created;
+    }
+
+    public Set<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(Set<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
     }
 
     @Override
