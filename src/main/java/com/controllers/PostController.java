@@ -80,7 +80,7 @@ public class PostController {
         Optional<Post> fundPost = postRepository.findById(postId);
         return fundPost.map(post -> ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Query list comment text by post success",
-                        post.getComments().stream().filter((Comment comment) -> comment.getAction().contentEquals("text")))
+                        post.getComments().stream().filter((Comment comment) -> true)) // comment.getAction().contentEquals("text")))
         )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ResponseObjectBase("failed", "Can't find comments by post id " + fundPost, "")
         ));

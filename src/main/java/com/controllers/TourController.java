@@ -83,8 +83,6 @@ public class TourController {
     ResponseEntity<ResponseObjectBase> updateTour(@RequestBody Tour newTour, @PathVariable Long id) {
         Tour foundTour = tourRepository.findById(id).map(tour -> {
             tour.setCode(newTour.getCode());
-            tour.setPriceAdult(newTour.getPriceAdult());
-            tour.setPriceChild(newTour.getPriceChild());
             tour.setImage(newTour.getImage());
             tour.setNote(newTour.getNote());
             return tourRepository.save(tour);

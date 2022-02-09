@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -17,6 +18,7 @@ public class Post implements Serializable {
     @Column(length = 1000)
     private String note;
     private String content;
+    private Boolean isActive;
     private Long creator;
     private Date created;
     @OneToMany(mappedBy = "post")
@@ -26,11 +28,14 @@ public class Post implements Serializable {
     public Post() {
     }
 
-    public Post(long id, String code, String note, String content) {
+    public Post(long id, String code, String note, String content, Boolean isActive, Long creator, Date created) {
         this.id = id;
         this.code = code;
         this.note = note;
         this.content = content;
+        this.isActive = isActive;
+        this.creator = creator;
+        this.created = created;
     }
 
     public Post(long id, String code, String note, String content, Long creator, Date created, Set<Comment> comments) {
@@ -88,6 +93,14 @@ public class Post implements Serializable {
         this.content = content;
     }
 
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
     public Long getCreator() {
         return creator;
     }
@@ -110,5 +123,18 @@ public class Post implements Serializable {
 
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return id == post.id && Objects.equals(code, post.code) && Objects.equals(note, post.note) && Objects.equals(content, post.content) && Objects.equals(isActive, post.isActive) && Objects.equals(creator, post.creator) && Objects.equals(created, post.created) && Objects.equals(comments, post.comments);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, code, note, content, isActive, creator, created, comments);
     }
 }

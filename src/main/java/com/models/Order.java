@@ -1,6 +1,8 @@
 package com.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -26,6 +28,11 @@ public class Order implements Serializable {
     @OneToMany(mappedBy = "order")
     @JsonIgnore
     private Set<OrderDetail> orderDetails;
+
+    @ManyToOne
+    @JoinColumn(name = "customer_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.NO_ACTION)
+    private Customer customer;
 
     public Order() {
     }

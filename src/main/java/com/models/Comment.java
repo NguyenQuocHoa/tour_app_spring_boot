@@ -1,12 +1,13 @@
 package com.models;
 
-import org.hibernate.Hibernate;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "comment")
@@ -25,20 +26,19 @@ public class Comment implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Post post;
 
-    @Column(length = 1000)
-    private String action;
-    @Column(length = 10000)
-    private String text;
+    @OneToMany(mappedBy = "comment")
+    @JsonIgnore
+    private Set<CommentDetail> commentDetails;
+
+    private Boolean isActive;
 
     public Comment() {
-
     }
 
-    public Comment(Customer customer, Post post, String action, String text) {
+    public Comment(Customer customer, Post post, Boolean isActive) {
         this.customer = customer;
         this.post = post;
-        this.action = action;
-        this.text = text;
+        this.isActive = isActive;
     }
 
     public Long getId() {
@@ -65,32 +65,24 @@ public class Comment implements Serializable {
         this.post = post;
     }
 
-    public String getAction() {
-        return action;
+    public Boolean getActive() {
+        return isActive;
     }
 
-    public void setAction(String action) {
-        this.action = action;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public void setText(String text) {
-        this.text = text;
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         Comment comment = (Comment) o;
-        return id != null && Objects.equals(id, comment.id);
+        return Objects.equals(id, comment.id) && Objects.equals(customer, comment.customer) && Objects.equals(post, comment.post) && Objects.equals(commentDetails, comment.commentDetails) && Objects.equals(isActive, comment.isActive);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, customer, post, commentDetails, isActive);
     }
 }

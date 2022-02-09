@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -22,10 +23,17 @@ public class Customer implements Serializable {
     private String password;
     @Column(length = 1000)
     private String note;
+    private Boolean isActive;
+    private Long creator;
+    private Date created;
 
     @OneToMany(mappedBy = "customer")
     @JsonIgnore
     private Set<Comment> comments;
+
+    @OneToMany(mappedBy = "customer")
+    @JsonIgnore
+    private Set<Order> orders;
 
     public Customer() {
     }
@@ -34,7 +42,8 @@ public class Customer implements Serializable {
         this.id = id;
     }
 
-    public Customer(String code, String name, String phone, String email, String address, Date dob, String password, String note) {
+    public Customer(String code, String name, String phone, String email, String address, Date dob, String password,
+                    String note, Boolean isActive, Long creator, Date created) {
         this.code = code;
         this.name = name;
         this.phone = phone;
@@ -43,6 +52,9 @@ public class Customer implements Serializable {
         this.dob = dob;
         this.password = password;
         this.note = note;
+        this.isActive = isActive;
+        this.creator = creator;
+        this.created = created;
     }
 
     public long getId() {
@@ -117,11 +129,48 @@ public class Customer implements Serializable {
         this.note = note;
     }
 
+    public Boolean getActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
+    }
+
+    public Long getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Long creator) {
+        this.creator = creator;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
     public Set<Comment> getComments() {
         return comments;
     }
 
     public void setComments(Set<Comment> comments) {
         this.comments = comments;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Customer customer = (Customer) o;
+        return id == customer.id && Objects.equals(code, customer.code) && Objects.equals(name, customer.name) && Objects.equals(phone, customer.phone) && Objects.equals(email, customer.email) && Objects.equals(address, customer.address) && Objects.equals(dob, customer.dob) && Objects.equals(password, customer.password) && Objects.equals(note, customer.note) && Objects.equals(isActive, customer.isActive) && Objects.equals(creator, customer.creator) && Objects.equals(created, customer.created) && Objects.equals(comments, customer.comments);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, code, name, phone, email, address, dob, password, note, isActive, creator, created, comments);
     }
 }

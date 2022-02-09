@@ -79,8 +79,7 @@ public class CommentController {
         Comment foundComment = commentRepository.findById(id).map(comment -> {
             comment.setCustomer(newComment.getCustomer());
             comment.setPost(newComment.getPost());
-            comment.setAction(newComment.getAction());
-            comment.setText(newComment.getText());
+            comment.setActive(newComment.getActive());
             return commentRepository.save(comment);
         }).orElseGet(() -> {
             newComment.setId(id);

@@ -80,7 +80,7 @@ public class CustomerController {
         Optional<Customer> fundCustomer = customerRepository.findById(customerId);
         return fundCustomer.map(customer -> ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Query list comment text by customer success",
-                        customer.getComments().stream().filter((Comment comment) -> comment.getAction().contentEquals("text")))
+                        customer.getComments().stream().filter((Comment comment) -> true)) // comment.getAction().contentEquals("text")))
         )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ResponseObjectBase("failed", "Can't find comments by customer id " + customerId, "")
         ));
