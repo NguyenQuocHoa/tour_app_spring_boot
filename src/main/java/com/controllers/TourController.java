@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -72,6 +73,7 @@ public class TourController {
                     new ResponseObjectBase("failed", "Tour code already exist", "")
             );
         }
+        newTour.setCreated(new Date());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Insert tour success", tourRepository.save(newTour))
         );

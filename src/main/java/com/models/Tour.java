@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class Tour implements Serializable {
         this.created = created;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

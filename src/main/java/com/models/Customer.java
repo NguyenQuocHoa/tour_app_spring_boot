@@ -57,7 +57,7 @@ public class Customer implements Serializable {
         this.created = created;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
