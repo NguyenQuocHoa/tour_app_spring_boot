@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "typePrice")
-public class TypePrice {
+public class Type {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -17,14 +17,14 @@ public class TypePrice {
     private BigDecimal price;
     private Boolean isActive;
 
-    @OneToMany(mappedBy = "typePrice")
+    @OneToMany(mappedBy = "type")
     @JsonIgnore
     private Set<Tour> tours;
 
-    public TypePrice() {
+    public Type() {
     }
 
-    public TypePrice(Long id, String code, BigDecimal price, Boolean isActive) {
+    public Type(Long id, String code, BigDecimal price, Boolean isActive) {
         this.id = id;
         this.code = code;
         this.price = price;
@@ -67,8 +67,8 @@ public class TypePrice {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        TypePrice typePrice = (TypePrice) o;
-        return Objects.equals(id, typePrice.id) && Objects.equals(code, typePrice.code) && Objects.equals(price, typePrice.price) && Objects.equals(isActive, typePrice.isActive) && Objects.equals(tours, typePrice.tours);
+        Type type = (Type) o;
+        return Objects.equals(id, type.id) && Objects.equals(code, type.code) && Objects.equals(price, type.price) && Objects.equals(isActive, type.isActive) && Objects.equals(tours, type.tours);
     }
 
     @Override
