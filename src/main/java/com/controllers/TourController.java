@@ -1,6 +1,7 @@
 package com.controllers;
 
 import com.models.Tour;
+import com.repositories.TypePriceRepository;
 import com.ultils.modelHelper.ResponseObject;
 import com.repositories.TourRepository;
 import com.services.TourService;
@@ -16,6 +17,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = {"http://localhost:3006", "http://someserver:3000"})
 @RestController
 @RequestMapping(path = "/api/v1/tours")
 public class TourController {
@@ -69,7 +71,7 @@ public class TourController {
     ResponseEntity<ResponseObjectBase> insertTour(@RequestBody Tour newTour) {
         List<Tour> foundTours = tourRepository.findByCode(newTour.getCode().trim());
         if (foundTours.size() > 0) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObjectBase("failed", "Tour code already exist", "")
             );
         }
@@ -86,13 +88,15 @@ public class TourController {
         Tour foundTour = tourRepository.findById(id).map(tour -> {
             tour.setCode(newTour.getCode());
             tour.setImage(newTour.getImage());
+            tour.setPriceAdult(newTour.getPriceAdult());
+            tour.setPriceChild(newTour.getPriceChild());
             tour.setNote(newTour.getNote());
             return tourRepository.save(tour);
         }).orElseGet(() -> {
             newTour.setId(id);
             return tourRepository.save(newTour);
         });
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+        return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Upsert tour success", foundTour)
         );
     }
@@ -104,11 +108,11 @@ public class TourController {
         boolean isExist = tourRepository.existsById(id);
         if (isExist) {
             tourRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObjectBase("ok", "Delete tour success", id)
             );
         }
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                 new ResponseObjectBase("failed", "Can't find tour " + id, "")
         );
     }

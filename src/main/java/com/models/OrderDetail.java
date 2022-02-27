@@ -1,5 +1,6 @@
 package com.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -73,6 +74,7 @@ public class OrderDetail implements Serializable {
         this.amount = amount;
     }
 
+    @JsonIgnore
     public Order getOrder() {
         return order;
     }

@@ -1,9 +1,9 @@
 package com.controllers;
 
-import com.models.Type;
+import com.models.TypePrice;
 import com.ultils.modelHelper.ResponseObject;
-import com.repositories.TypeRepository;
-import com.services.TypeService;
+import com.repositories.TypePriceRepository;
+import com.services.TypePriceService;
 import com.ultils.modelHelper.ModelResult;
 import com.ultils.modelHelper.ResponseObjectBase;
 import com.ultils.specification.SearchCriteria;
@@ -15,14 +15,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = {"http://localhost:3006", "http://someserver:3000"})
 @RestController
 @RequestMapping(path = "/api/v1/types")
-public class TypeController {
+public class TypePriceController {
     // DI = Dependency Injection
     @Autowired
-    private TypeRepository typeRepository;
+    private TypePriceRepository typeRepository;
     @Autowired
-    private TypeService typeService;
+    private TypePriceService typePriceService;
 
     @GetMapping("/get-list-all")
     @ResponseBody
@@ -39,8 +40,8 @@ public class TypeController {
                                                 @RequestParam("sortColumn") String sortColumn,
                                                 @RequestParam("sortOrder") String sortOrder,
                                                 @RequestBody List<SearchCriteria> searchCriteriaList) {
-        ModelResult<Type> typeResult = typeService.getListTypeWithSearch(pageIndex, pageSize, sortColumn, sortOrder, searchCriteriaList);
-        List<Type> listType = typeResult.getListResult();
+        ModelResult<TypePrice> typeResult = typePriceService.getListTypeWithSearch(pageIndex, pageSize, sortColumn, sortOrder, searchCriteriaList);
+        List<TypePrice> listType = typeResult.getListResult();
         long count = typeResult.getCount();
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObject("ok", "Query list type success", listType, pageIndex, pageSize, count)
@@ -50,7 +51,7 @@ public class TypeController {
     @GetMapping("/get-by-id/{id}")
     @ResponseBody
     ResponseEntity<ResponseObjectBase> findById(@PathVariable Long id) {
-        Optional<Type> fundType = typeRepository.findById(id);
+        Optional<TypePrice> fundType = typeRepository.findById(id);
         if (fundType.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObjectBase("ok", "Query type success", fundType)
@@ -62,14 +63,15 @@ public class TypeController {
         }
     }
 
-    // insert new Type with POST method
+    // insert new TypePrice with POST method
     @PostMapping("/insert")
     @ResponseBody
-    ResponseEntity<ResponseObjectBase> insertType(@RequestBody Type newType) {
-        List<Type> foundTypes = typeRepository.findByCode(newType.getCode().trim());
+    ResponseEntity<ResponseObjectBase> insertType(@RequestBody TypePrice newType) {
+        List<TypePrice> foundTypes = typeRepository.findByCode(newType.getCode().trim());
+        System.out.println("tour: " + newType.getTour().getId());
         if (foundTypes.size() > 0) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
-                    new ResponseObjectBase("failed", "Type price code already exist", "")
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    new ResponseObjectBase("failed", "TypePrice code already exist", "")
             );
         }
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -77,32 +79,33 @@ public class TypeController {
         );
     }
 
-    // update a Type => Method PUT
+    // update a TypePrice => Method PUT
     @PutMapping("/update/{id}")
     @ResponseBody
-    ResponseEntity<ResponseObjectBase> updateType(@RequestBody Type newType, @PathVariable Long id) {
-        Type foundType = typeRepository.findById(id).map(type -> {
+    ResponseEntity<ResponseObjectBase> updateType(@RequestBody TypePrice newType, @PathVariable Long id) {
+        TypePrice foundType = typeRepository.findById(id).map(type -> {
             type.setCode(newType.getCode());
             type.setPrice(newType.getPrice());
             type.setIsActive(newType.getIsActive());
+            type.setTour(newType.getTour());
             return typeRepository.save(type);
         }).orElseGet(() -> {
             newType.setId(id);
             return typeRepository.save(newType);
         });
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+        return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Upsert type success", foundType)
         );
     }
 
-    // Delete a Type => Method DELETE
+    // Delete a TypePrice => Method DELETE
     @DeleteMapping("/delete/{id}")
     @ResponseBody
     ResponseEntity<ResponseObjectBase> deleteType(@PathVariable Long id) {
         boolean isExist = typeRepository.existsById(id);
         if (isExist) {
             typeRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObjectBase("ok", "Delete type success", id)
             );
         }

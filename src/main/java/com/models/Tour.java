@@ -1,8 +1,6 @@
 package com.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -18,6 +16,8 @@ public class Tour implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String code;
+    private BigDecimal priceAdult;
+    private BigDecimal priceChild;
     private String image;
     @Column(length = 1000)
     private String note;
@@ -29,17 +29,13 @@ public class Tour implements Serializable {
     @JsonIgnore
     private Set<OrderDetail> orderDetails;
 
-    @ManyToOne
-    @JoinColumn(name = "typePrice_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.NO_ACTION)
-    private TypePrice typePrice;
-
     public Tour() {
     }
 
-    public Tour(Long id, String code, String image, String note, Boolean isActive, Long creator, Date created) {
-        this.id = id;
+    public Tour(String code, BigDecimal priceAdult, BigDecimal priceChild, String image, String note, Boolean isActive, Long creator, Date created) {
         this.code = code;
+        this.priceAdult = priceAdult;
+        this.priceChild = priceChild;
         this.image = image;
         this.note = note;
         this.isActive = isActive;
@@ -47,11 +43,25 @@ public class Tour implements Serializable {
         this.created = created;
     }
 
+    @Override
+    public String toString() {
+        return "Tour{" +
+                "id=" + id +
+                ", code='" + code + '\'' +
+                ", priceAdult=" + priceAdult +
+                ", priceChild=" + priceChild +
+                ", image='" + image + '\'' +
+                ", note='" + note + '\'' +
+                ", creator=" + creator +
+                ", created=" + created +
+                '}';
+    }
+
     public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -61,6 +71,22 @@ public class Tour implements Serializable {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public BigDecimal getPriceAdult() {
+        return priceAdult;
+    }
+
+    public void setPriceAdult(BigDecimal priceAdult) {
+        this.priceAdult = priceAdult;
+    }
+
+    public BigDecimal getPriceChild() {
+        return priceChild;
+    }
+
+    public void setPriceChild(BigDecimal priceChild) {
+        this.priceChild = priceChild;
     }
 
     public String getImage() {
@@ -79,11 +105,11 @@ public class Tour implements Serializable {
         this.note = note;
     }
 
-    public Boolean getActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(Boolean active) {
+    public void setIsActive(Boolean active) {
         isActive = active;
     }
 
@@ -91,7 +117,7 @@ public class Tour implements Serializable {
         return creator;
     }
 
-    public void setCreator(long creator) {
+    public void setCreator(Long creator) {
         this.creator = creator;
     }
 
@@ -116,11 +142,11 @@ public class Tour implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Tour tour = (Tour) o;
-        return Objects.equals(id, tour.id) && Objects.equals(code, tour.code) && Objects.equals(image, tour.image) && Objects.equals(note, tour.note) && Objects.equals(isActive, tour.isActive) && Objects.equals(creator, tour.creator) && Objects.equals(created, tour.created) && Objects.equals(orderDetails, tour.orderDetails) && Objects.equals(typePrice, tour.typePrice);
+        return Objects.equals(id, tour.id) && Objects.equals(code, tour.code) && Objects.equals(priceAdult, tour.priceAdult) && Objects.equals(priceChild, tour.priceChild) && Objects.equals(image, tour.image) && Objects.equals(note, tour.note) && Objects.equals(isActive, tour.isActive) && Objects.equals(creator, tour.creator) && Objects.equals(created, tour.created) && Objects.equals(orderDetails, tour.orderDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, image, note, isActive, creator, created, orderDetails, typePrice);
+        return Objects.hash(id, code, priceAdult, priceChild, image, note, isActive, creator, created, orderDetails);
     }
 }

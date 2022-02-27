@@ -1,2 +1,2 @@
-package com.services;public class ReportService {
+public class ReportService {
 }

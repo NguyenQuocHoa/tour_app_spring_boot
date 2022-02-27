@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface CustomerRepository extends PagingAndSortingRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
     List<Customer> findByCode(String code);
+
+    Customer findCustomerById(Long id);
 }

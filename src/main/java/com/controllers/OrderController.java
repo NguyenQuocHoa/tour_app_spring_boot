@@ -1,10 +1,14 @@
 package com.controllers;
 
 ;
+import com.models.Customer;
 import com.models.Order;
 import com.models.OrderDetail;
+import com.models.Tour;
+import com.repositories.CustomerRepository;
 import com.repositories.OrderDetailRepository;
 import com.repositories.OrderRepository;
+import com.repositories.TourRepository;
 import com.services.OrderService;
 import com.ultils.modelHelper.ModelResult;
 import com.ultils.modelHelper.ResponseObject;
@@ -16,10 +20,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import javax.xml.soap.Detail;
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin
 @RequestMapping(path = "/api/v1/orders")
 public class OrderController {
     // DI = Dependency Injection
@@ -29,6 +37,11 @@ public class OrderController {
     private OrderService orderService;
     @Autowired
     private OrderDetailRepository orderDetailRepository;
+    @Autowired
+    private TourRepository tourRepository;
+    @Autowired
+    private CustomerRepository customerRepository;
+
 
     @PostMapping("/get-list")
     @ResponseBody
@@ -60,16 +73,17 @@ public class OrderController {
         }
     }
 
-    @GetMapping("/get-order-detail-by-order")
-    @ResponseBody
-    ResponseEntity<ResponseObjectBase> findCommentByOrder(@RequestParam Long orderId) {
-        Optional<Order> fundOrder = orderRepository.findById(orderId);
-        return fundOrder.map(order -> ResponseEntity.status(HttpStatus.OK).body(
-                new ResponseObjectBase("ok", "Query list order detail by order success", order.getOrderDetails())
-        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                new ResponseObjectBase("failed", "Can't find order detail by order id " + fundOrder, "")
-        ));
-    }
+//    @GetMapping("/get-order-detail-by-order")
+//    @ResponseBody
+//    ResponseEntity<ResponseObjectBase> findCommentByOrder(@RequestParam Long orderId) {
+//        Optional<Order> fundOrder = orderRepository.findById(orderId);
+//        return fundOrder.map(order -> ResponseEntity.status(HttpStatus.OK).body(
+//                new ResponseObjectBase("ok", "Query list order detail by order success", order.getOrderDetails())
+//        )).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+//                new ResponseObjectBase("failed", "Can't find order detail by order id " + fundOrder, "")
+//        ));
+//    }
+
 
     // insert new Order with POST method
     @PostMapping("/insert")
@@ -78,13 +92,16 @@ public class OrderController {
     ResponseEntity<ResponseObjectBase> insertOrder(@RequestBody Order newOrder) {
         List<Order> foundOrders = orderRepository.findByCode(newOrder.getCode().trim());
         if (foundOrders.size() > 0) {
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     new ResponseObjectBase("failed", "Order code already exist", "")
             );
         }
-        System.out.println(newOrder);
+        Customer customer = customerRepository.findCustomerById(20L);
+        newOrder.setCustomer(customer);
         Order order = orderRepository.save(newOrder);
         newOrder.getOrderDetails().forEach(detail -> {
+            Tour tour = tourRepository.findTourById(detail.getTour().getId());
+            detail.setTour(tour);
             detail.setOrder(order);
             orderDetailRepository.save(detail);
         });

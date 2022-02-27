@@ -7,6 +7,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,19 +26,21 @@ public class Order implements Serializable {
     private BigDecimal totalAmount;
     private Boolean isSuccess;
     private Boolean isPayOnline;
-    @OneToMany(mappedBy = "order")
-    @JsonIgnore
-    private Set<OrderDetail> orderDetails;
-
+    private Long creator;
+    private Date created;
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     private Customer customer;
 
+    @OneToMany(mappedBy = "order")
+    private Set<OrderDetail> orderDetails;
+
     public Order() {
     }
 
-    public Order(Long id, String code, String note, Integer numberAdult, Integer numberChild, BigDecimal totalAmount, Boolean isSuccess, Boolean isPayOnline) {
+    public Order(Long id, String code, String note, Integer numberAdult, Integer numberChild, BigDecimal totalAmount,
+                 Boolean isSuccess, Boolean isPayOnline, Long creator, Date created) {
         this.id = id;
         this.code = code;
         this.note = note;
@@ -46,6 +49,8 @@ public class Order implements Serializable {
         this.totalAmount = totalAmount;
         this.isSuccess = isSuccess;
         this.isPayOnline = isPayOnline;
+        this.creator = creator;
+        this.created = created;
     }
 
     public Long getId() {
@@ -112,6 +117,30 @@ public class Order implements Serializable {
         isPayOnline = payOnline;
     }
 
+    public Long getCreator() {
+        return creator;
+    }
+
+    public void setCreator(Long creator) {
+        this.creator = creator;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Customer getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
     public Set<OrderDetail> getOrderDetails() {
         return orderDetails;
     }
@@ -125,11 +154,11 @@ public class Order implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
-        return Objects.equals(id, order.id) && Objects.equals(code, order.code) && Objects.equals(note, order.note) && Objects.equals(numberAdult, order.numberAdult) && Objects.equals(numberChild, order.numberChild) && Objects.equals(totalAmount, order.totalAmount) && Objects.equals(isSuccess, order.isSuccess) && Objects.equals(isPayOnline, order.isPayOnline);
+        return Objects.equals(id, order.id) && Objects.equals(code, order.code) && Objects.equals(note, order.note) && Objects.equals(numberAdult, order.numberAdult) && Objects.equals(numberChild, order.numberChild) && Objects.equals(totalAmount, order.totalAmount) && Objects.equals(isSuccess, order.isSuccess) && Objects.equals(isPayOnline, order.isPayOnline) && Objects.equals(creator, order.creator) && Objects.equals(created, order.created) && Objects.equals(customer, order.customer) && Objects.equals(orderDetails, order.orderDetails);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code, note, numberAdult, numberChild, totalAmount, isSuccess, isPayOnline);
+        return Objects.hash(id, code, note, numberAdult, numberChild, totalAmount, isSuccess, isPayOnline, creator, created, customer, orderDetails);
     }
 }

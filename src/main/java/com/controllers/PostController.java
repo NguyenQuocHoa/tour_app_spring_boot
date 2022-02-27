@@ -13,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = {"http://localhost:3006", "http://someserver:3000"})
 @RestController
 @RequestMapping(path = "/api/v1/posts")
 public class PostController {
@@ -96,6 +98,7 @@ public class PostController {
                     new ResponseObjectBase("failed", "Post code already exist", "")
             );
         }
+        newPost.setCreated(new Date());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Insert post success", postRepository.save(newPost))
         );
@@ -114,7 +117,7 @@ public class PostController {
             newPost.setId(id);
             return postRepository.save(newPost);
         });
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+        return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Upsert post success", foundPost)
         );
     }
@@ -126,7 +129,7 @@ public class PostController {
         boolean isExist = postRepository.existsById(id);
         if (isExist) {
             postRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObjectBase("ok", "Delete post success", id)
             );
         }

@@ -1,15 +1,18 @@
 package com.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "typePrice")
-public class Type {
+public class TypePrice implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -17,19 +20,33 @@ public class Type {
     private BigDecimal price;
     private Boolean isActive;
 
-    @OneToMany(mappedBy = "type")
-    @JsonIgnore
-    private Set<Tour> tours;
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "tour_id")
+//    @OnDelete(action = OnDeleteAction.CASCADE)
+//    private Tour tour;
 
-    public Type() {
+    @ManyToOne
+    @JoinColumn(name = "tour_id", nullable = false)
+    private Tour tour;
+
+    public TypePrice() {
     }
 
-    public Type(Long id, String code, BigDecimal price, Boolean isActive) {
+    public TypePrice(Long id, String code, BigDecimal price, Boolean isActive) {
         this.id = id;
         this.code = code;
         this.price = price;
         this.isActive = isActive;
     }
+
+    public TypePrice(Long id, String code, BigDecimal price, Boolean isActive, Tour tour) {
+        this.id = id;
+        this.code = code;
+        this.price = price;
+        this.isActive = isActive;
+        this.tour = tour;
+    }
+
 
     public Long getId() {
         return id;
@@ -63,16 +80,11 @@ public class Type {
         this.isActive = isActive;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Type type = (Type) o;
-        return Objects.equals(id, type.id) && Objects.equals(code, type.code) && Objects.equals(price, type.price) && Objects.equals(isActive, type.isActive) && Objects.equals(tours, type.tours);
+    public Tour getTour() {
+        return tour;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, code, price, isActive, tours);
+    public void setTour(Tour tour) {
+        this.tour = tour;
     }
 }

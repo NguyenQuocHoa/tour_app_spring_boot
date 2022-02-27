@@ -85,7 +85,7 @@ public class CommentController {
             newComment.setId(id);
             return commentRepository.save(newComment);
         });
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+        return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Upsert comment success", foundComment)
         );
     }
@@ -97,7 +97,7 @@ public class CommentController {
         boolean isExist = commentRepository.existsById(id);
         if (isExist) {
             commentRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObjectBase("ok", "Delete comment success", id)
             );
         }

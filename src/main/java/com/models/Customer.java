@@ -57,7 +57,7 @@ public class Customer implements Serializable {
         this.created = created;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
@@ -129,11 +129,11 @@ public class Customer implements Serializable {
         this.note = note;
     }
 
-    public Boolean getActive() {
+    public Boolean getIsActive() {
         return isActive;
     }
 
-    public void setActive(Boolean active) {
+    public void setIsActive(Boolean active) {
         isActive = active;
     }
 

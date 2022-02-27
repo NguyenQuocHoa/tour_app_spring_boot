@@ -13,9 +13,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+@CrossOrigin(origins = {"http://localhost:3006", "http://someserver:3000"})
 @RestController
 @RequestMapping(path = "/api/v1/customers")
 public class CustomerController {
@@ -96,6 +98,7 @@ public class CustomerController {
                     new ResponseObjectBase("failed", "Customer code already exist", "")
             );
         }
+        newCustomer.setCreated(new Date());
         return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Insert customer success", customerRepository.save(newCustomer))
         );
@@ -114,12 +117,13 @@ public class CustomerController {
             customer.setPassword(newCustomer.getPassword());
             customer.setDob(newCustomer.getDob());
             customer.setNote(newCustomer.getNote());
+            customer.setIsActive(newCustomer.getIsActive());
             return customerRepository.save(customer);
         }).orElseGet(() -> {
             newCustomer.setId(id);
             return customerRepository.save(newCustomer);
         });
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+        return ResponseEntity.status(HttpStatus.OK).body(
                 new ResponseObjectBase("ok", "Upsert customer success", foundCustomer)
         );
     }
@@ -131,7 +135,7 @@ public class CustomerController {
         boolean isExist = customerRepository.existsById(id);
         if (isExist) {
             customerRepository.deleteById(id);
-            return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(
+            return ResponseEntity.status(HttpStatus.OK).body(
                     new ResponseObjectBase("ok", "Delete customer success", id)
             );
         }

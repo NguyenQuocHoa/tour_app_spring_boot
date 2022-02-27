@@ -14,6 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBui
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+@CrossOrigin(origins = {"http://localhost:3006", "http://someserver:3000"})
 @Controller
 @RequestMapping(path = "/api/v1/FileUpload")
 public class FileUploadController {
